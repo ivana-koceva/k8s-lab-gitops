@@ -5,13 +5,10 @@ metadata:
   namespace: argocd
 spec:
   entryPoints:
-    - websecure          # Port 443: Traefik's HTTPS entrypoint
+    - web
   routes:
     - match: Host(`argocd.local`)
       kind: Rule
       services:
         - name: argocd-server
-          port: 443
-  tls:
-    passthrough: true    # Traefik forwards raw TLS to ArgoCD which handles its own certificate
-                      
+          port: 80
