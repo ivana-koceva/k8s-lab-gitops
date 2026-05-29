@@ -5,12 +5,10 @@ metadata:
   namespace: argocd
 spec:
   entryPoints:
-    - websecure
+    - web
   routes:
     - match: Host(`argocd.local`)
       kind: Rule
       services:
         - name: argocd-server
-          port: 443
-  tls:
-    passthrough: true  # Traefik doesn't touch TLS, ArgoCD handles it
+          port: 80
