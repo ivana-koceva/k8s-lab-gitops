@@ -1,0 +1,28 @@
+image:
+  repository: ""
+  digest: "sha256:placeholder"
+
+replicaCount: 1
+
+service:
+  port: 8080
+
+ingress:
+  host: ""
+
+securityContext:
+  enabled: false
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+
+livenessProbe: {}
+readinessProbe: {}
+
+resources: {}
+
+persistence:
+  enabled: false
+
+metrics:
+  enabled: false
