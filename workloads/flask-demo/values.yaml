@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/ivana-koceva/flask-demo
-  digest: sha256:f53c3dce00206da838693bf829f861f551566a02f953a05ec222b28a2b155df0
+  digest: sha256:988b111170f7378c8d0406f2d9986ba0edf3a7d36eee0e398e4ee741d49026e0
 service:
   port: 8080
 ingress:
