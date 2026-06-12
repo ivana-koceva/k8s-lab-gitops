@@ -1,78 +1,52 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "baseline.fullname" . }}
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "baseline.labels" . | nindent 4 }}
+    app: {{ .Release.Name }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
-      {{- include "baseline.selectorLabels" . | nindent 6 }}
+      app: {{ .Release.Name }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
-        {{- include "baseline.labels" . | nindent 8 }}
-        {{- with .Values.podLabels }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
+        app: {{ .Release.Name }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "baseline.serviceAccountName" . }}
-      {{- with .Values.podSecurityContext }}
+      {{- if .Values.securityContext.enabled }}
       securityContext:
-        {{- toYaml . | nindent 8 }}
+        runAsNonRoot: {{ .Values.securityContext.runAsNonRoot }}
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        runAsGroup: {{ .Values.securityContext.runAsGroup }}
       {{- end }}
       containers:
-        - name: {{ .Chart.Name }}
-          {{- with .Values.securityContext }}
-          securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+        - name: {{ .Release.Name }}
+          image: "{{ .Values.image.repository }}@{{ .Values.image.digest }}"
           ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
+            - containerPort: {{ .Values.service.port }}
               protocol: TCP
-          {{- with .Values.livenessProbe }}
+          {{- if .Values.livenessProbe }}
           livenessProbe:
-            {{- toYaml . | nindent 12 }}
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
           {{- end }}
-          {{- with .Values.readinessProbe }}
+          {{- if .Values.readinessProbe }}
           readinessProbe:
-            {{- toYaml . | nindent 12 }}
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
           {{- end }}
-          {{- with .Values.resources }}
+          {{- if .Values.resources }}
           resources:
-            {{- toYaml . | nindent 12 }}
+            {{- toYaml .Values.resources | nindent 12 }}
           {{- end }}
-          {{- with .Values.volumeMounts }}
+          {{- if .Values.persistence.enabled }}
           volumeMounts:
-            {{- toYaml . | nindent 12 }}
+            - name: data
+              mountPath: {{ .Values.persistence.mountPath }}
           {{- end }}
-      {{- with .Values.volumes }}
+      {{- if .Values.persistence.enabled }}
       volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-pvc
       {{- end }}
