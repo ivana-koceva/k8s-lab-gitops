@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flask-demo-red-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  flask-demo-red.json: |
+    {
+      "title": "flask-demo — RED Metrics",
+      "uid": "flask-demo-red",
+      ... (paste the full JSON from Step 2 here, indented 4 spaces)
+    }
